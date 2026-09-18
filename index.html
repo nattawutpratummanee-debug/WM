@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เข้าสู่ระบบ</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div id="pin-popup">
+    <div class="popup-box">
+      <div class="title-bar">
+        <span class="title-dots"><i></i><i></i><i></i></span>
+        <span class="title-text">PIN Access</span>
+      </div>
+      <div class="popup-body">
+        <h1>เข้าสู่ระบบ</h1>
+        <div class="divider"><span></span><b>✦</b><span></span></div>
+        <p>กรุณากรอก PIN เพื่อเข้าใช้งาน</p>
+        <input type="password" id="pin-input" maxlength="6" inputmode="numeric" placeholder="******" autocomplete="off">
+        <button id="submit-btn">ยืนยัน</button>
+        <div class="error" id="error-msg">PIN ไม่ถูกต้อง กรุณาลองใหม่</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading-screen">
+    <div class="loading-box">
+      <div class="title-bar">
+        <span class="title-dots"><i></i><i></i><i></i></span>
+        <span class="title-text">Loading</span>
+      </div>
+      <div class="loading-body">
+        <div class="loading-bouncers"><i></i><i></i><i></i></div>
+        <p class="loading-text">กำลังโหลด กรุณารอ</p>
+        <div class="loading-bar"><span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="main-content">
+    <div class="hearts" id="hearts"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="welcome-window" id="welcome-window">
+      <div class="title-bar">
+        <span class="title-dots"><i></i><i></i><i></i></span>
+        <span class="title-text">Dear Mint</span>
+      </div>
+      <div class="welcome-body">
+        <h1 class="welcome-title">
+          <span>><</span>
+          <span>คุณแฟนสุดน่ารัก</span>
+          
+        </h1>
+        <p class="welcome-sub">มีอะไรที่กังวลใจอยู่มั้ยคะ ?</p>
+        <div class="divider"><span></span><b>♥</b><span></span></div>
+        <textarea id="chat-input" maxlength="500" placeholder="พิมพ์รายละเอียดที่ทุกข์ใจตรงนี้เลยนะ..."></textarea>
+        <button id="send-btn">ส่งไปหาคุณมิ้นท์</button>
+        <div class="chat-reply" id="chat-reply">รับรู้แล้วนะคะ เป็นกำลังใจให้เสมอ</div>
+      </div>
+    </div>
+    <div class="love-reveal" id="love-reveal">
+      <div class="love-window" id="love-window">
+        <div class="title-bar">
+          <span class="title-dots"><i></i><i></i><i></i></span>
+          <span class="title-text">Gift For You</span>
+        </div>
+<div class="love-body">
+              <button class="love-image" id="love-image" aria-label="รูปน่ารัก">
+                <img src="image.png" alt="รูปน่ารัก">
+              </button>
+              <p class="love-text">รักเสมอนะ จุ๊บๆ</p>
+              <p class="audio-hint">คุณแฟนลองเปิดดูสิคะ ><</p>
+              <div class="audio-box" id="audio-box">
+                <div class="audio-meta">
+                  <span class="audio-title">♪ MEYOU - อกแล้ว ft. Jigsaw</span>
+                  <span class="equalizer"><i></i><i></i><i></i><i></i><i></i></span>
+                </div>
+                <div class="audio-progress" id="audio-progress">
+                  <span id="audio-progress-fill"></span>
+                </div>
+                <button class="audio-play" id="audio-play">▶ เปิดฟัง</button>
+                <button class="movie-btn" id="movie-btn">อยากดูต่อมั้ยค่ะ</button>
+              </div>
+            </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-overlay" id="quiz-popup">
+    <div class="quiz-window">
+      <div class="title-bar">
+        <span class="title-dots"><i></i><i></i><i></i></span>
+        <span class="title-text">อยากรู้อะ</span>
+      </div>
+      <div class="quiz-body">
+        <p class="quiz-q">ดูต่อรึปล่าคะ ?</p>
+        <div class="quiz-actions">
+          <button class="quiz-no" id="quiz-no">ไม่!</button>
+          <button class="quiz-yes" id="quiz-yes">ดูสิ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-overlay" id="love-popup">
+    <div class="quiz-window">
+      <div class="title-bar">
+        <span class="title-dots"><i></i><i></i><i></i></span>
+        <span class="title-text">สุดท้ายเเล้ว</span>
+      </div>
+      <div class="quiz-body">
+        <div id="love-stage">
+          <p class="love-request">บอกรักบาสก่อนสิ อิอิ</p>
+          <button class="quiz-yes" id="love-end">รักนะ ♥</button>
+        </div>
+        <div id="love-next">
+          <p class="love-alert">รอพรุ่งนี้นะ อิอิ</p>
+          <button class="quiz-yes" id="back-pin-btn">กลับไปหน้าใส่ PIN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CORRECT_PIN = '240349';
+
+    // ===== Supabase config =====
+    const SUPABASE_URL = 'https://bnnpnahueyccyvkcnxcu.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJubnBuYWh1ZXljY3l2a2NueGN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzQ2NjAsImV4cCI6MjEwNTMxMDY2MH0.Mv2McEwVOgQPJN52WjvRnsoprOciiGHvQWKg0tzwPks';
+    const supabaseClient = (SUPABASE_URL && SUPABASE_ANON_KEY)
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
+    const pinInput = document.getElementById('pin-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const errorMsg = document.getElementById('error-msg');
+    const popup = document.getElementById('pin-popup');
+    const loadingScreen = document.getElementById('loading-screen');
+    const mainContent = document.getElementById('main-content');
+    const sendBtn = document.getElementById('send-btn');
+    const chatInput = document.getElementById('chat-input');
+    const chatReply = document.getElementById('chat-reply');
+    const loveReveal = document.getElementById('love-reveal');
+    const loveWindow = document.getElementById('love-window');
+    const loveImage = document.getElementById('love-image');
+    const welcomeWindow = document.getElementById('welcome-window');
+    const audioPlay = document.getElementById('audio-play');
+    const audioBox = document.getElementById('audio-box');
+    const progressFill = document.getElementById('audio-progress-fill');
+    const movieBtn = document.getElementById('movie-btn');
+    const quizPopup = document.getElementById('quiz-popup');
+    const lovePopup = document.getElementById('love-popup');
+    const quizNo = document.getElementById('quiz-no');
+    const quizYes = document.getElementById('quiz-yes');
+    const loveEnd = document.getElementById('love-end');
+    const loveStage = document.getElementById('love-stage');
+    const loveNext = document.getElementById('love-next');
+    const backPinBtn = document.getElementById('back-pin-btn');
+
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        audioCtx = new AC();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function tone(freq, start, dur, type, vol) {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.001, start);
+      gain.gain.exponentialRampToValueAtTime(vol, start + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(start);
+      osc.stop(start + dur + 0.02);
+    }
+
+    function playPop() {
+      if (!initAudio()) return;
+      const now = audioCtx.currentTime;
+      const base = 480 + Math.random() * 320;
+      tone(base, now, 0.1, 'triangle', 0.15);
+      tone(base * 2, now + 0.02, 0.08, 'sine', 0.08);
+    }
+
+    function playNotify() {
+      if (!initAudio()) return;
+      const now = audioCtx.currentTime;
+      tone(720, now, 0.07, 'square', 0.07);
+      tone(560, now + 0.09, 0.09, 'square', 0.07);
+      tone(560, now + 0.16, 0.05, 'sine', 0.06);
+    }
+
+    function playSuccess() {
+      if (!initAudio()) return;
+      const now = audioCtx.currentTime;
+      tone(523, now, 0.12, 'triangle', 0.14);
+      tone(659, now + 0.1, 0.12, 'triangle', 0.14);
+      tone(784, now + 0.2, 0.25, 'triangle', 0.16);
+    }
+
+    function playError() {
+      if (!initAudio()) return;
+      const now = audioCtx.currentTime;
+      tone(200, now, 0.18, 'sawtooth', 0.1);
+      tone(150, now + 0.12, 0.22, 'sawtooth', 0.1);
+    }
+
+    function playKey() {
+      if (!initAudio()) return;
+      const now = audioCtx.currentTime;
+      const dur = 0.04;
+      const buffer = audioCtx.createBuffer(1, Math.ceil(audioCtx.sampleRate * dur), audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2.5);
+      }
+      const src = audioCtx.createBufferSource();
+      src.buffer = buffer;
+      const bp = audioCtx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = 2400;
+      bp.Q.value = 0.8;
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.5;
+      src.connect(bp);
+      bp.connect(gain);
+      gain.connect(audioCtx.destination);
+      src.start(now);
+      tone(3200, now, 0.015, 'square', 0.05);
+      tone(1800, now + 0.012, 0.02, 'square', 0.04);
+    }
+
+    function checkPin() {
+      if (pinInput.value === CORRECT_PIN) {
+        playSuccess();
+        popup.style.display = 'none';
+        loadingScreen.style.display = 'flex';
+        const bar = loadingScreen.querySelector('.loading-bar');
+        const clone = bar.cloneNode(true);
+        bar.parentNode.replaceChild(clone, bar);
+        setTimeout(function () {
+          loadingScreen.style.display = 'none';
+          mainContent.classList.add('block');
+          mainContent.style.display = 'flex';
+          if (chatInput) setTimeout(() => chatInput.focus(), 2700);
+        }, 2700);
+        pinInput.value = '';
+      } else {
+        playError();
+        errorMsg.style.display = 'block';
+        errorMsg.classList.remove('shake');
+        void errorMsg.offsetWidth;
+        errorMsg.classList.add('shake');
+        pinInput.value = '';
+        pinInput.focus();
+      }
+    }
+
+    submitBtn.addEventListener('click', checkPin);
+    pinInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        checkPin();
+      }
+    });
+    pinInput.addEventListener('input', function () {
+      if (pinInput.value.length > 0) {
+        playPop();
+      }
+    });
+    pinInput.focus();
+
+    sendBtn.addEventListener('click', function () {
+      if (!chatInput.value.trim()) {
+        chatInput.focus();
+        return;
+      }
+      const messageText = chatInput.value.trim();
+      playSuccess();
+      chatReply.classList.add('show');
+
+      if (supabaseClient) {
+        supabaseClient.from('messages').insert({
+          name: 'อารยา',
+          content: messageText
+        }).then(function (res) {
+          if (res.error) console.error('supabase insert error:', res.error);
+        }).catch(function (err) {
+          console.error('supabase error:', err);
+        });
+      }
+
+      chatInput.disabled = true;
+      sendBtn.disabled = true;
+
+      setTimeout(function () {
+        loveReveal.classList.add('show');
+      }, 600);
+
+      setTimeout(function () {
+        loveWindow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 1200);
+
+      chatInput.value = '';
+      chatInput.blur();
+    });
+
+    loveImage.addEventListener('click', function () {
+      playKey();
+      loveImage.classList.remove('tilt-3d');
+      setTimeout(function () {
+        loveImage.classList.add('tilt-3d');
+      }, 60);
+    });
+
+    var song = new Audio(encodeURI('MEYOU - อกแลว ft. Jigsaw.mp3'));
+    song.preload = 'metadata';
+
+    function setPlayState(playing) {
+      audioBox.classList.toggle('playing', playing);
+      audioPlay.textContent = playing ? '■ หยุดพัก' : '▶ เปิดฟัง';
+    }
+
+    var movieRevealed = false;
+    var songFinished = false;
+    function revealMovie() {
+      if (movieRevealed) return;
+      movieRevealed = true;
+      movieBtn.style.display = 'block';
+      movieBtn.classList.add('locked');
+      setTimeout(function () {
+        movieBtn.classList.add('pop');
+      }, 30);
+    }
+
+    function openOverlay(el) {
+      el.classList.remove('closing');
+      el.classList.add('on');
+    }
+
+    function closeOverlay(el) {
+      el.classList.add('closing');
+      setTimeout(function () {
+        el.classList.remove('closing');
+        el.classList.remove('on');
+      }, 290);
+    }
+
+    audioPlay.addEventListener('click', function () {
+      if (song.paused) {
+        song.play().then(function () {
+          setPlayState(true);
+        }).catch(function () {
+          audioPlay.textContent = 'กดอีกครั้งเพื่อเปิดเพลง';
+        });
+      } else {
+        song.pause();
+        setPlayState(false);
+      }
+    });
+    song.addEventListener('play', function () {
+      setPlayState(true);
+      revealMovie();
+    });
+    song.addEventListener('pause', function () { setPlayState(false); });
+    song.addEventListener('ended', function () {
+      setPlayState(false);
+      progressFill.style.width = '0%';
+      unlockMovie();
+    });
+    song.addEventListener('timeupdate', function () {
+      if (song.duration) {
+        progressFill.style.width = ((song.currentTime / song.duration) * 100) + '%';
+      }
+    });
+
+    function unlockMovie() {
+      if (!movieRevealed || songFinished) return;
+      songFinished = true;
+      movieBtn.classList.remove('locked');
+      movieBtn.classList.remove('shake');
+      void movieBtn.offsetWidth;
+      movieBtn.classList.add('shake');
+      setTimeout(function () {
+        movieBtn.classList.remove('shake');
+      }, 500);
+    }
+
+    movieBtn.addEventListener('click', function () {
+      if (!songFinished) {
+        playNotify();
+        movieBtn.classList.remove('shake');
+        void movieBtn.offsetWidth;
+        movieBtn.classList.add('shake');
+        var old = movieBtn.textContent;
+        movieBtn.textContent = 'ต้องฟังเพลงจบก่อนนะ ><';
+        setTimeout(function () {
+          movieBtn.textContent = old;
+          movieBtn.classList.remove('shake');
+        }, 1300);
+        return;
+      }
+      playPop();
+      openOverlay(quizPopup);
+    });
+    quizNo.addEventListener('click', function () {
+      playPop();
+      closeOverlay(quizPopup);
+    });
+    quizYes.addEventListener('click', function () {
+      playSuccess();
+      closeOverlay(quizPopup);
+      setTimeout(function () {
+        openOverlay(lovePopup);
+      }, 250);
+    });
+    loveEnd.addEventListener('click', function () {
+      playSuccess();
+      loveStage.style.display = 'none';
+      loveNext.style.display = 'block';
+    });
+    backPinBtn.addEventListener('click', function () {
+      playKey();
+      location.reload();
+    });
+
+    chatInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendBtn.click();
+      }
+      if (e.key !== 'Enter') {
+        playPop();
+      }
+    });
+  </script>
+</body>
+</html>
